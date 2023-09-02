@@ -13,10 +13,10 @@ public class PostServiceImpl implements PostService{
         return null;
     }
 
-//    @Override
-//    public MultiResponseDto<PostDto.Response> getAllPost() {
-//        return null;
-//    }
+    @Override
+    public MultiResponseDto<PostDto.Response> getAllPost() {
+        return null;
+    }
 
     @Override
     public PostDto.Response editPost() {
