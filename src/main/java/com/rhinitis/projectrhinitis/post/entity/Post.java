@@ -1,5 +1,6 @@
 package com.rhinitis.projectrhinitis.post.entity;
 
+import com.rhinitis.projectrhinitis.post.dto.PostDto;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -16,7 +17,7 @@ import java.time.LocalDateTime;
 public class Post {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long userid;
+    private Long postId;
     //private User user;
     //private Board board;
     private String title;
@@ -26,13 +27,22 @@ public class Post {
     private PostStatus postStatus;
 
     @Builder
-    public Post(Long userid, String title, String content, LocalDateTime createdAt, LocalDateTime modifiedAt, PostStatus postStatus) {
-        this.userid = userid;
+    public Post(Long postId, String title, String content, LocalDateTime createdAt, LocalDateTime modifiedAt, PostStatus postStatus) {
+        this.postId = postId;
         this.title = title;
         this.content = content;
         this.createdAt = createdAt;
         this.modifiedAt = modifiedAt;
         this.postStatus = postStatus;
+    }
+
+    public void update(PostDto.Patch patchDto){
+        this.title = patchDto.getTitle();
+        this.content = patchDto.getContents();
+        this.modifiedAt = LocalDateTime.now();
+    }
+    public void changeStatus(PostStatus status){
+        this.postStatus = status;
     }
 
 

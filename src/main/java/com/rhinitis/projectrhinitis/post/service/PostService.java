@@ -4,9 +4,9 @@ import com.rhinitis.projectrhinitis.post.dto.PostDto;
 
 public interface PostService {
 
-    PostDto.Response addPost();
-    PostDto.Response getPost();
+    PostDto.Response addPost(PostDto.Post postDto);
+    PostDto.Response getPost(Long postId);
     //MultiResponseDto<PostDto.Response> getAllPost();
-    PostDto.Response editPost();
-    Long deletePost();
+    PostDto.Response editPost(Long postId, PostDto.Patch patchDto);
+    void deletePost(Long postId);
 }
