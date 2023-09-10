@@ -14,7 +14,7 @@ env:
 jobs:
   if_merged:
     if: github.event.pull_request.merged == true
-    runs-on: uguntu-latest
+    runs-on: ubuntu-latest
 
     env :
       APPLICATION: ${{ secrets.APPLICATION_YML }}
