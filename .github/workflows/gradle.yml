@@ -37,7 +37,7 @@ jobs:
       run: |
         mkdir -p deploy-server/
         chmod +x ./gradlew
-        ./gradlew clean bootjar -x text # -x asciidoctor
+        ./gradlew clean bootjar -x test # -x asciidoctor
         cp build/libs/*.jar deploy-server/
       shell: bash
 
