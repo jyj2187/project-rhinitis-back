@@ -45,7 +45,7 @@ jobs:
       run: |
         cp appspec.yml deploy-server/appspec.yml
         cp -r scripts/deploy-aws deploy-server/scripts
-        zip -r delpoy-server.zip ./deploy-server
+        zip -r deploy-server.zip ./deploy-server
       shell: bash
 
     - name: Configure AWS credentials
