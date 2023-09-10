@@ -9,7 +9,7 @@ permissions:
   contents: read
 
 env:
-  S3_BUCKET_NAME: "${{ secrets.S3_BUCKET_NAME }}"
+  S3_BUCKET_NAME: ${{ secrets.S3_BUCKET_NAME }}
 
 jobs:
   if_merged:
@@ -30,13 +30,13 @@ jobs:
     - name : 프로퍼티 세팅
       run: |
         cd src/main/resources
-        echo "${{ env.APPLICATION }}" > ./application.yml
+        echo ${{ env.APPLICATION }} > ./application.yml
       shell: bash
 
     - name: 서버 빌드
       run: |
         mkdir -p deploy-server/
-        chmode +x ./gradlew
+        chmod +x ./gradlew
         ./gradlew clean bootjar -x text # -x asciidoctor
         cp build/libs/*.jar deploy-server/
       shell: bash
