@@ -3,7 +3,7 @@ name: 그러니까 CI/CD
 on:
   pull_request:
     types: [ "closed" ]
-    branches: [ "main", "deploy" ]
+    branches: [ "main", "deploy", "dev"]
 
 permissions:
   contents: read
