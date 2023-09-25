@@ -54,7 +54,6 @@ public class PostServiceImpl implements PostService{
 
     @Override
     public void deletePost(Long postId) {
-
         Post post = getPostById(postId);
         post.changeStatus(PostStatus.INACTIVE);
         log.info("게시글 \"{}\" 이(가) 비활성화 되었습니다. 게시글 ID : {}",post.getTitle(),postId);
