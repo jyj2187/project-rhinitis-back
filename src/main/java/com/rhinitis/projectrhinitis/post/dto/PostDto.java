@@ -55,5 +55,4 @@ public class PostDto {
             this.postStatus = postStatus;
         }
     }
-
 }
