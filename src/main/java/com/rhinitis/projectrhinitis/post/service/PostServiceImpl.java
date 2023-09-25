@@ -1,5 +1,6 @@
 package com.rhinitis.projectrhinitis.post.service;
 
+import com.rhinitis.projectrhinitis.dto.MultiResponseDto;
 import com.rhinitis.projectrhinitis.post.dto.PostDto;
 import com.rhinitis.projectrhinitis.post.entity.Post;
 import com.rhinitis.projectrhinitis.post.entity.PostStatus;
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Slf4j
 @Service
@@ -22,6 +24,7 @@ public class PostServiceImpl implements PostService{
     @Override
     public PostDto.Response addPost(PostDto.Post postDto) {
         Post post = dtoToPost(postDto);
+        postRepository.save(post);
         PostDto.Response response = mapToResponse(post);
         log.info("게시글 \"{}\" 이(가) 등록되었습니다. 게시글 ID : {}",post.getTitle(),post.getPostId());
         return response;
@@ -34,10 +37,12 @@ public class PostServiceImpl implements PostService{
         return response;
     }
 
-//    @Override
-//    public MultiResponseDto<PostDto.Response> getAllPost() {
-//        return null;
-//    }
+    @Override
+    public MultiResponseDto getAllPost() {
+        List<Post> posts = postRepository.findAll();
+
+        return new MultiResponseDto<>(posts);
+    }
 
     @Override
     public PostDto.Response editPost(Long postId, PostDto.Patch patchDto) {
@@ -49,7 +54,6 @@ public class PostServiceImpl implements PostService{
 
     @Override
     public void deletePost(Long postId) {
-
         Post post = getPostById(postId);
         post.changeStatus(PostStatus.INACTIVE);
         log.info("게시글 \"{}\" 이(가) 비활성화 되었습니다. 게시글 ID : {}",post.getTitle(),postId);

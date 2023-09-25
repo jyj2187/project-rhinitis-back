@@ -1,5 +1,6 @@
 package com.rhinitis.projectrhinitis.post.dto;
 
+import com.rhinitis.projectrhinitis.post.entity.Post;
 import com.rhinitis.projectrhinitis.post.entity.PostStatus;
 import lombok.Builder;
 import lombok.Getter;

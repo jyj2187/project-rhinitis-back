@@ -30,7 +30,7 @@ jobs:
     - name : 프로퍼티 세팅
       run: |
         cd src/main/resources
-        echo ${{ env.APPLICATION }} > ./application.yml
+        echo "${{ env.APPLICATION }}" > ./application.yml
       shell: bash
 
     - name: 서버 빌드
