@@ -1,5 +1,6 @@
 package com.rhinitis.projectrhinitis.post.service;
 
+import com.rhinitis.projectrhinitis.dto.MultiResponseDto;
 import com.rhinitis.projectrhinitis.post.dto.PostDto;
 import com.rhinitis.projectrhinitis.post.entity.Post;
 import com.rhinitis.projectrhinitis.post.entity.PostStatus;
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Slf4j
 @Service
@@ -35,10 +37,12 @@ public class PostServiceImpl implements PostService{
         return response;
     }
 
-//    @Override
-//    public MultiResponseDto<PostDto.Response> getAllPost() {
-//        return null;
-//    }
+    @Override
+    public MultiResponseDto getAllPost() {
+        List<Post> posts = postRepository.findAll();
+
+        return new MultiResponseDto<>(posts);
+    }
 
     @Override
     public PostDto.Response editPost(Long postId, PostDto.Patch patchDto) {

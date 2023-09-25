@@ -1,5 +1,6 @@
 package com.rhinitis.projectrhinitis.post.controller;
 
+import com.rhinitis.projectrhinitis.dto.MultiResponseDto;
 import com.rhinitis.projectrhinitis.post.dto.PostDto;
 import com.rhinitis.projectrhinitis.post.service.PostServiceImpl;
 import lombok.RequiredArgsConstructor;
@@ -29,6 +30,11 @@ public class PostController {
         return new ResponseEntity<>(postResponse,HttpStatus.OK);
     }
     //글 다수 조회
+    @GetMapping
+    public ResponseEntity getAllPosts(){
+        MultiResponseDto responseDto = postService.getAllPost();
+        return new ResponseEntity<>(responseDto,HttpStatus.OK);
+    }
 
     //글 수정 폼
     @GetMapping("/edit/{postId}")
