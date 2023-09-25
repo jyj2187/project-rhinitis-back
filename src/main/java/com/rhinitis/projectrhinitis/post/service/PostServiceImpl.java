@@ -22,6 +22,7 @@ public class PostServiceImpl implements PostService{
     @Override
     public PostDto.Response addPost(PostDto.Post postDto) {
         Post post = dtoToPost(postDto);
+        postRepository.save(post);
         PostDto.Response response = mapToResponse(post);
         log.info("게시글 \"{}\" 이(가) 등록되었습니다. 게시글 ID : {}",post.getTitle(),post.getPostId());
         return response;
