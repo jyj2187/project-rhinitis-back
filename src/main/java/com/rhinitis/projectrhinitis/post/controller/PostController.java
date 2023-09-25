@@ -1,18 +1,16 @@
 package com.rhinitis.projectrhinitis.post.controller;
 
+import com.rhinitis.projectrhinitis.dto.MultiResponseDto;
 import com.rhinitis.projectrhinitis.post.dto.PostDto;
 import com.rhinitis.projectrhinitis.post.service.PostServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @Controller
-@RequestMapping("/board")
+@RequestMapping("/api/post")
 @RequiredArgsConstructor
 public class PostController {
     private final PostServiceImpl postService;
@@ -32,6 +30,11 @@ public class PostController {
         return new ResponseEntity<>(postResponse,HttpStatus.OK);
     }
     //글 다수 조회
+    @GetMapping
+    public ResponseEntity getAllPosts(){
+        MultiResponseDto responseDto = postService.getAllPost();
+        return new ResponseEntity<>(responseDto,HttpStatus.OK);
+    }
 
     //글 수정 폼
     @GetMapping("/edit/{postId}")
