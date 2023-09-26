@@ -45,7 +45,7 @@ public class PostController {
 
     //글 수정
     @PostMapping("/edit/{postId}")
-    public ResponseEntity patchPost(@PathVariable Long postId, PostDto.Patch patchDto){
+    public ResponseEntity patchPost(@PathVariable Long postId, @RequestBody PostDto.Patch patchDto){
         PostDto.Response postResponse = postService.editPost(postId,patchDto);
         return new ResponseEntity<>(postResponse,HttpStatus.OK);
     }
