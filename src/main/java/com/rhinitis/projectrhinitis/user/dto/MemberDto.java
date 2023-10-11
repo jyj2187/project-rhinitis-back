@@ -34,6 +34,7 @@ public class MemberDto {
                     .displayName(displayName)
                     .email(email)
                     .aboutMe(aboutMe)
+                    .memberStatus(MemberStatus.IN_REGISTER)
                     .build();
         }
     }
