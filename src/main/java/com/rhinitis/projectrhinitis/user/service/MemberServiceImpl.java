@@ -36,27 +36,55 @@ public class MemberServiceImpl implements MemberService {
         return new MemberDto.Response(existMember);
     }
 
+    /**
+     * <pre>회원 활성화 서비스</pre>
+     * TODO: 활성화 인증 by 이메일, 문자, 톡 등을 통해 처리
+     *
+     * @param activateDto
+     * @param memberId
+     * @return
+     */
+    @Override
+    public MemberDto.Response activateMember(Long memberId, MemberDto.Activate activateDto) {
+        Member existMember = verifyExistMemberById(memberId);
+        if (!activateDto.getUsername().equals(existMember.getUsername())) {
+            throw new RuntimeException("올바르지 않은 요청입니다.");
+        }
+//        if(existMember.getMemberStatus().equals(MemberStatus.ACTIVE)) {
+//            throw new RuntimeException("이미 활성화된 회원입니다.");
+//        }
+
+        // 임시용
+        String checkActivationCode = "ACTIVATE";
+        if (!activateDto.getActivationCode().equals(checkActivationCode)) {
+            throw new RuntimeException("활성화 코드가 올바르지 않습니다.");
+        }
+        existMember.activate();
+        memberRepository.save(existMember);
+        return new MemberDto.Response(existMember);
+    }
+
     @Override
     public MemberDto.Response updateMember(Long memberId, MemberDto.Patch patchDto) {
         log.info("회원 수정. 회원 ID : {}", memberId);
-        Member member = verifyExistMemberById(memberId);
-        member.updateMember(patchDto);
-        Member savedMember = memberRepository.save(member);
+        Member existMember = verifyExistMemberById(memberId);
+        existMember.updateMember(patchDto);
+        Member savedMember = memberRepository.save(existMember);
         return new MemberDto.Response(savedMember);
     }
 
     @Override
     public MemberDto.Response getMember(Long memberId) {
         log.info("회원 조회. 회원 ID : {}", memberId);
-        Member member = verifyExistMemberById(memberId);
-        return new MemberDto.Response(member);
+        Member existMember = verifyExistMemberById(memberId);
+        return new MemberDto.Response(existMember);
     }
 
     @Override
-    public void inactiveMember(Long memberId) {
-        Member member = verifyExistMemberById(memberId);
-        member.inactive();
-        memberRepository.save(member);
+    public void deactivateMember(Long memberId) {
+        Member existMember = verifyExistMemberById(memberId);
+        existMember.deactivate();
+        memberRepository.save(existMember);
         log.info("회원 비활성화. 회원 ID : {}", memberId);
     }
 

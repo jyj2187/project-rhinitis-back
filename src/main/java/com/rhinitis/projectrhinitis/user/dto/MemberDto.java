@@ -54,6 +54,19 @@ public class MemberDto {
 
     @Getter
     @NoArgsConstructor(access = AccessLevel.PROTECTED)
+    public static class Activate{
+        private String username;
+        private String activationCode;
+
+        @Builder
+        public Activate(String username, String activationCode) {
+            this.username = username;
+            this.activationCode = activationCode;
+        }
+    }
+
+    @Getter
+    @NoArgsConstructor(access = AccessLevel.PROTECTED)
     public static class Patch{
         private String displayName;
         private String email;

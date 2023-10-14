@@ -45,11 +45,11 @@ public class Member {
 
     }
 
-    public void active() {
+    public void activate() {
         this.memberStatus = MemberStatus.ACTIVE;
     }
 
-    public void inactive() {
+    public void deactivate() {
         this.memberStatus = MemberStatus.INACTIVE;
     }
 }
