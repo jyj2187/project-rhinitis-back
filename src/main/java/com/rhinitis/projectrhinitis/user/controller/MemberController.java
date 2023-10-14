@@ -56,7 +56,7 @@ public class MemberController {
     @PostMapping("/{memberId}/activate")
     public ResponseEntity activateMember(@PathVariable Long memberId, @RequestBody MemberDto.Activate activateDto) {
         MemberDto.Response response = memberService.activateMember(memberId, activateDto);
-        return null;
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     // 멤버 정보 조회
