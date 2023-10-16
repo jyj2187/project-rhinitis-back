@@ -1,17 +1,22 @@
 package com.rhinitis.projectrhinitis.post.service;
 
 import com.rhinitis.projectrhinitis.dto.MultiResponseDto;
+import com.rhinitis.projectrhinitis.dto.PageInfo;
 import com.rhinitis.projectrhinitis.post.dto.PostDto;
 import com.rhinitis.projectrhinitis.post.entity.Post;
 import com.rhinitis.projectrhinitis.post.entity.PostStatus;
 import com.rhinitis.projectrhinitis.post.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.*;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -38,10 +43,12 @@ public class PostServiceImpl implements PostService{
     }
 
     @Override
-    public MultiResponseDto getAllPost() {
-        List<Post> posts = postRepository.findAll();
-
-        return new MultiResponseDto<>(posts);
+    public MultiResponseDto getAllPost(Pageable pageable) {
+        PageRequest pageRequest = PageRequest.of(pageable.getPageNumber()-1,pageable.getPageSize(),pageable.getSort());
+        Page<Post> postPage = postRepository.findAll(pageRequest);
+        List<Post> posts = new ArrayList<>(postPage.getContent());
+        List<PostDto.Response> responseList = posts.stream().map(this::mapToResponse).collect(Collectors.toList());
+        return new MultiResponseDto<>(responseList,postPage);
     }
 
     @Override
