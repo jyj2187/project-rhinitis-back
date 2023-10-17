@@ -4,6 +4,8 @@ import com.rhinitis.projectrhinitis.dto.MultiResponseDto;
 import com.rhinitis.projectrhinitis.post.dto.PostDto;
 import com.rhinitis.projectrhinitis.post.service.PostServiceImpl;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.*;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -31,8 +33,8 @@ public class PostController {
     }
     //글 다수 조회
     @GetMapping
-    public ResponseEntity getAllPosts(){
-        MultiResponseDto responseDto = postService.getAllPost();
+    public ResponseEntity getAllPosts(@PageableDefault(sort = "postId",direction = Sort.Direction.DESC) Pageable pageable){
+        MultiResponseDto responseDto = postService.getAllPost(pageable);
         return new ResponseEntity<>(responseDto,HttpStatus.OK);
     }
 
