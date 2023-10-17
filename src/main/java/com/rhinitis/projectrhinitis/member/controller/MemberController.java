@@ -1,7 +1,7 @@
-package com.rhinitis.projectrhinitis.user.controller;
+package com.rhinitis.projectrhinitis.member.controller;
 
-import com.rhinitis.projectrhinitis.user.dto.MemberDto;
-import com.rhinitis.projectrhinitis.user.service.MemberService;
+import com.rhinitis.projectrhinitis.member.dto.MemberDto;
+import com.rhinitis.projectrhinitis.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -30,20 +30,23 @@ public class MemberController {
         return new ResponseEntity<>(response ,HttpStatus.CREATED);
     }
 
-    // 아이디 중복확인
-    public ResponseEntity checkUsername() {
-        return null;
-    }
-
-    // 닉네임 중복확인
-    public ResponseEntity checkNickname() {
-        return null;
-    }
-
-    // 이메일 중복확인
-    public ResponseEntity checkEmail() {
-        return null;
-    }
+//    // 아이디 중복확인
+//    @PostMapping("/{memberId}/checkUsername")
+//    public ResponseEntity checkUsername() {
+//        return null;
+//    }
+//
+//    // 닉네임 중복확인
+//    @PostMapping("/{memberId}/checkNickname")
+//    public ResponseEntity checkNickname() {
+//        return null;
+//    }
+//
+//    // 이메일 중복확인
+//    @PostMapping("/{memberId}/checkEmail")
+//    public ResponseEntity checkEmail() {
+//        return null;
+//    }
 
     // 로그인
     @PostMapping("/login")

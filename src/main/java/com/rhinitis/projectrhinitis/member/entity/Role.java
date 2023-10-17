@@ -1,4 +1,4 @@
-package com.rhinitis.projectrhinitis.user.entity;
+package com.rhinitis.projectrhinitis.member.entity;
 
 public enum Role {
     ADMIN,  MANAGER, MEMBER, VISITOR

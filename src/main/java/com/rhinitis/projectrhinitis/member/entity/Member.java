@@ -1,7 +1,7 @@
-package com.rhinitis.projectrhinitis.user.entity;
+package com.rhinitis.projectrhinitis.member.entity;
 
 
-import com.rhinitis.projectrhinitis.user.dto.MemberDto;
+import com.rhinitis.projectrhinitis.member.dto.MemberDto;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;

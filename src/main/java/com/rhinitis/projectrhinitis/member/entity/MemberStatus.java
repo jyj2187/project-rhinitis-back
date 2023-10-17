@@ -1,6 +1,4 @@
-package com.rhinitis.projectrhinitis.user.entity;
-
-import lombok.Builder;
+package com.rhinitis.projectrhinitis.member.entity;
 
 public enum MemberStatus {
     INACTIVE(0, "비활성"),

@@ -1,8 +1,8 @@
-package com.rhinitis.projectrhinitis.user.service;
+package com.rhinitis.projectrhinitis.member.service;
 
-import com.rhinitis.projectrhinitis.user.dto.MemberDto;
-import com.rhinitis.projectrhinitis.user.entity.Member;
-import com.rhinitis.projectrhinitis.user.repository.MemberRepository;
+import com.rhinitis.projectrhinitis.member.dto.MemberDto;
+import com.rhinitis.projectrhinitis.member.entity.Member;
+import com.rhinitis.projectrhinitis.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

@@ -1,6 +1,6 @@
-package com.rhinitis.projectrhinitis.user.repository;
+package com.rhinitis.projectrhinitis.member.repository;
 
-import com.rhinitis.projectrhinitis.user.entity.Member;
+import com.rhinitis.projectrhinitis.member.entity.Member;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

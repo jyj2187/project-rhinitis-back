@@ -1,6 +1,6 @@
-package com.rhinitis.projectrhinitis.user.service;
+package com.rhinitis.projectrhinitis.member.service;
 
-import com.rhinitis.projectrhinitis.user.dto.MemberDto;
+import com.rhinitis.projectrhinitis.member.dto.MemberDto;
 
 public interface MemberService {
     MemberDto.Response joinMember(MemberDto.Join joinDto);

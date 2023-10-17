@@ -1,7 +1,7 @@
-package com.rhinitis.projectrhinitis.user.dto;
+package com.rhinitis.projectrhinitis.member.dto;
 
-import com.rhinitis.projectrhinitis.user.entity.Member;
-import com.rhinitis.projectrhinitis.user.entity.MemberStatus;
+import com.rhinitis.projectrhinitis.member.entity.Member;
+import com.rhinitis.projectrhinitis.member.entity.MemberStatus;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
