@@ -1,6 +1,7 @@
 package com.rhinitis.projectrhinitis.member.service;
 
 import com.rhinitis.projectrhinitis.member.dto.MemberDto;
+import org.springframework.security.core.Authentication;
 
 public interface MemberService {
     MemberDto.Response joinMember(MemberDto.Join joinDto);

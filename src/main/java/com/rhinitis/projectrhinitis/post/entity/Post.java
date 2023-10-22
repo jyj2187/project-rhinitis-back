@@ -1,20 +1,22 @@
 package com.rhinitis.projectrhinitis.post.entity;
 
+import com.rhinitis.projectrhinitis.comment.entity.Comment;
+import com.rhinitis.projectrhinitis.member.entity.Member;
 import com.rhinitis.projectrhinitis.post.dto.PostDto;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import com.rhinitis.projectrhinitis.util.audit.Auditable;
+import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @NoArgsConstructor
 @Entity
-public class Post {
+public class Post extends Auditable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long postId;
@@ -22,28 +24,32 @@ public class Post {
     //private Board board;
     private String title;
     private String content;
-    private LocalDateTime createdAt;
-    private LocalDateTime modifiedAt;
+    @Enumerated(EnumType.STRING)
     private PostStatus postStatus;
+    @ManyToOne
+    @JoinColumn(name = "member_id")
+    private Member member;
+    @OneToMany(mappedBy = "post", fetch = FetchType.LAZY)
+    private List<Comment> comments = new ArrayList<>();;
 
     @Builder
-    public Post(Long postId, String title, String content, LocalDateTime createdAt, LocalDateTime modifiedAt, PostStatus postStatus) {
+    public Post(Long postId, String title, String content, PostStatus postStatus, Member member) {
         this.postId = postId;
         this.title = title;
         this.content = content;
-        this.createdAt = createdAt;
-        this.modifiedAt = modifiedAt;
         this.postStatus = postStatus;
+        this.member = member;
     }
 
     public void update(PostDto.Patch patchDto){
         this.title = patchDto.getTitle();
-        this.content = patchDto.getContents();
-        this.modifiedAt = LocalDateTime.now();
+        this.content = patchDto.getContent();
     }
     public void changeStatus(PostStatus status){
         this.postStatus = status;
     }
 
-
+    public void setMember(Member member) {
+        this.member = member;
+    }
 }

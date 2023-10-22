@@ -3,8 +3,12 @@ package com.rhinitis.projectrhinitis.member.service;
 import com.rhinitis.projectrhinitis.member.dto.MemberDto;
 import com.rhinitis.projectrhinitis.member.entity.Member;
 import com.rhinitis.projectrhinitis.member.repository.MemberRepository;
+import com.rhinitis.projectrhinitis.util.auth.PrincipalDetails;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,9 +20,11 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class MemberServiceImpl implements MemberService {
     private final MemberRepository memberRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public MemberDto.Response joinMember(MemberDto.Join joinDto) {
+        joinDto.encodePassword(passwordEncoder);
         verifyExistUsername(joinDto.getUsername());
         Member member = joinDto.toEntity();
         Member savedMember = memberRepository.save(member);
@@ -29,7 +35,7 @@ public class MemberServiceImpl implements MemberService {
     @Override
     public MemberDto.Response loginMember(MemberDto.Login loginDto) {
         Member existMember = verifyExistMemberByUsername(loginDto.getUsername());
-        if (!loginDto.getPassword().equals(existMember.getPassword())) {
+        if (!passwordEncoder.matches(loginDto.getPassword(), existMember.getPassword())) {
             throw new RuntimeException("비밀번호가 틀리잖아!");
         }
         log.info("회원 \"{}\" 로그인. 회원 ID : {} ", existMember.getUsername(), existMember.getMemberId());
