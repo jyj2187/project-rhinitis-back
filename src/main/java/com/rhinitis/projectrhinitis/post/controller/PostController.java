@@ -3,59 +3,58 @@ package com.rhinitis.projectrhinitis.post.controller;
 import com.rhinitis.projectrhinitis.dto.MultiResponseDto;
 import com.rhinitis.projectrhinitis.post.dto.PostDto;
 import com.rhinitis.projectrhinitis.post.service.PostServiceImpl;
+import com.rhinitis.projectrhinitis.util.auth.PrincipalDetails;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.*;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-@Controller
-@RequestMapping("/api/post")
+import java.security.Principal;
+
+@Slf4j
+@RestController
+@RequestMapping("/posts")
 @RequiredArgsConstructor
 public class PostController {
     private final PostServiceImpl postService;
-    //TODO 도메인 정하기
 
     //글 등록
-    //ToDo +유저정보
-    @PostMapping("/write")
-    public ResponseEntity postPost(@RequestBody PostDto.Post postDto){
-        PostDto.Response postResponse = postService.addPost(postDto);
+    @PostMapping("/v1")
+    public ResponseEntity postPost(@RequestBody PostDto.Save saveDto){
+        PostDto.Response postResponse = postService.addPost(saveDto);
         return new ResponseEntity<>(postResponse, HttpStatus.CREATED);
     }
+
     //글 조회
-    @GetMapping("/{postId}")
+    @GetMapping("/v1/{postId}")
     public ResponseEntity getPost(@PathVariable Long postId){
         PostDto.Response postResponse = postService.getPost(postId);
         return new ResponseEntity<>(postResponse,HttpStatus.OK);
     }
     //글 다수 조회
-    @GetMapping
-    public ResponseEntity getAllPosts(@PageableDefault(sort = "postId",direction = Sort.Direction.DESC) Pageable pageable){
+    @GetMapping("/v1")
+    public ResponseEntity getAllPosts(@PageableDefault(page = 1, sort = "postId",direction = Sort.Direction.DESC) Pageable pageable){
         MultiResponseDto responseDto = postService.getAllPost(pageable);
         return new ResponseEntity<>(responseDto,HttpStatus.OK);
     }
 
-    //글 수정 폼
-    @GetMapping("/edit/{postId}")
-    public ResponseEntity getEditForm(@PathVariable Long postId){
-        PostDto.Response postResponse = postService.getPost(postId);
-        return new ResponseEntity<>(postResponse,HttpStatus.OK);
-    }
-
     //글 수정
-    @PostMapping("/edit/{postId}")
+    @PatchMapping("/v1/{postId}")
     public ResponseEntity patchPost(@PathVariable Long postId, @RequestBody PostDto.Patch patchDto){
         PostDto.Response postResponse = postService.editPost(postId,patchDto);
         return new ResponseEntity<>(postResponse,HttpStatus.OK);
     }
 
     //글 삭제
-    @PostMapping("/delete/{postId}")
+    @DeleteMapping("/v1/{postId}")
     public ResponseEntity deletePost(@PathVariable Long postId){
         postService.deletePost(postId);
-        return new ResponseEntity("정상적으로 삭제되었습니다.",HttpStatus.OK);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }
+

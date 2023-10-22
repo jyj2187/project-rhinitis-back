@@ -1,7 +1,9 @@
 package com.rhinitis.projectrhinitis.post.service;
 
 import com.rhinitis.projectrhinitis.dto.MultiResponseDto;
-import com.rhinitis.projectrhinitis.dto.PageInfo;
+import com.rhinitis.projectrhinitis.member.entity.Member;
+import com.rhinitis.projectrhinitis.member.entity.Role;
+import com.rhinitis.projectrhinitis.member.repository.MemberRepository;
 import com.rhinitis.projectrhinitis.post.dto.PostDto;
 import com.rhinitis.projectrhinitis.post.entity.Post;
 import com.rhinitis.projectrhinitis.post.entity.PostStatus;
@@ -9,7 +11,6 @@ import com.rhinitis.projectrhinitis.post.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.*;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,12 +26,18 @@ import java.util.stream.Collectors;
 public class PostServiceImpl implements PostService{
 
     private final PostRepository postRepository;
+    private final MemberRepository memberRepository;
 
     @Override
-    public PostDto.Response addPost(PostDto.Post postDto) {
-        Post post = dtoToPost(postDto);
+    public PostDto.Response addPost(PostDto.Save saveDto) {
+        Post post = saveDto.toEntity();
+        Member member = memberRepository.findByUsername(saveDto.getUsername()).orElseThrow();
+        if (member.getMemberRole().equals(Role.VISITOR)) {
+            throw new RuntimeException("권한없음");
+        }
+        post.setMember(member);
         postRepository.save(post);
-        PostDto.Response response = mapToResponse(post);
+        PostDto.Response response = new PostDto.Response(post);
         log.info("게시글 \"{}\" 이(가) 등록되었습니다. 게시글 ID : {}",post.getTitle(),post.getPostId());
         return response;
     }
@@ -38,7 +45,7 @@ public class PostServiceImpl implements PostService{
     @Override
     public PostDto.Response getPost(Long postId) {
         Post post = getPostById(postId);
-        PostDto.Response response = mapToResponse(post);
+        PostDto.Response response = new PostDto.Response(post);
         return response;
     }
 
@@ -47,15 +54,22 @@ public class PostServiceImpl implements PostService{
         PageRequest pageRequest = PageRequest.of(pageable.getPageNumber()-1,pageable.getPageSize(),pageable.getSort());
         Page<Post> postPage = postRepository.findAll(pageRequest);
         List<Post> posts = new ArrayList<>(postPage.getContent());
-        List<PostDto.Response> responseList = posts.stream().map(this::mapToResponse).collect(Collectors.toList());
+        List<PostDto.Response> responseList = posts.stream().map(PostDto.Response::new).collect(Collectors.toList());
         return new MultiResponseDto<>(responseList,postPage);
     }
 
     @Override
     public PostDto.Response editPost(Long postId, PostDto.Patch patchDto) {
         Post post = getPostById(postId);
+
+        Member member = memberRepository.findByUsername(patchDto.getUsername()).orElseThrow();
+        if (!member.getMemberId().equals(post.getMember().getMemberId())) {
+            throw new RuntimeException("이건 니가 쓴 글이 아냐!");
+        }
+
         post.update(patchDto);
-        PostDto.Response response = mapToResponse(post);
+        postRepository.save(post);
+        PostDto.Response response = new PostDto.Response(post);
         return response;
     }
 
@@ -63,29 +77,8 @@ public class PostServiceImpl implements PostService{
     public void deletePost(Long postId) {
         Post post = getPostById(postId);
         post.changeStatus(PostStatus.INACTIVE);
+        postRepository.save(post);
         log.info("게시글 \"{}\" 이(가) 비활성화 되었습니다. 게시글 ID : {}",post.getTitle(),postId);
-    }
-
-    private Post dtoToPost(PostDto.Post postDto){
-        Post post = Post.builder()
-                .title(postDto.getTitle())
-                .content(postDto.getContents())
-                .createdAt(LocalDateTime.now())
-                .postStatus(PostStatus.ACTIVE)
-                .build();
-        return post;
-    }
-
-    private PostDto.Response mapToResponse(Post post){
-        PostDto.Response response = PostDto.Response.builder()
-                .postId(post.getPostId())
-                .title(post.getTitle())
-                .content(post.getContent())
-                .createdAt(post.getCreatedAt())
-                .modifiedAt(post.getModifiedAt())
-                .postStatus(post.getPostStatus())
-                .build();
-        return response;
     }
 
     private Post getPostById(Long postId){

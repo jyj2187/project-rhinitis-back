@@ -1,10 +1,10 @@
 package com.rhinitis.projectrhinitis.comment.entity;
 
 import com.rhinitis.projectrhinitis.comment.dto.CommentDto;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import com.rhinitis.projectrhinitis.member.entity.Member;
+import com.rhinitis.projectrhinitis.post.entity.Post;
+import com.rhinitis.projectrhinitis.util.audit.Auditable;
+import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,31 +14,40 @@ import java.time.LocalDateTime;
 @Getter
 @NoArgsConstructor
 @Entity
-public class Comment {
+public class Comment extends Auditable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long commentId;
-    //private User user;
-    //private Post post;
-    private String contents;
-    private LocalDateTime createdAt;
-    private LocalDateTime modifiedAt;
+    private String content;
     private CommentStatus commentStatus;
+    @ManyToOne
+    @JoinColumn(name = "member_id")
+    private Member member;
+    @ManyToOne
+    @JoinColumn(name = "post_id")
+    private Post post;
 
     @Builder
-    public Comment(Long commentId, String contents, LocalDateTime createdAt, LocalDateTime modifiedAt, CommentStatus commentStatus) {
+    public Comment(Long commentId, String content, CommentStatus commentStatus, Member member, Post post) {
         this.commentId = commentId;
-        this.contents = contents;
-        this.createdAt = createdAt;
-        this.modifiedAt = modifiedAt;
+        this.content = content;
         this.commentStatus = commentStatus;
+        this.member = member;
+        this.post = post;
     }
 
     public void update(CommentDto.Patch patchDto){
-        this.contents = patchDto.getContents();
-        this.modifiedAt = LocalDateTime.now();
+        this.content = patchDto.getContent();
     }
     public void changeStatus(CommentStatus status){
         this.commentStatus = status;
+    }
+
+    public void setMember(Member member) {
+        this.member = member;
+    }
+
+    public void setPost(Post post){
+        this.post = post;
     }
 }

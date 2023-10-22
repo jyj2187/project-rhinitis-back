@@ -4,6 +4,8 @@ import com.rhinitis.projectrhinitis.comment.dto.CommentDto;
 import com.rhinitis.projectrhinitis.comment.entity.Comment;
 import com.rhinitis.projectrhinitis.comment.entity.CommentStatus;
 import com.rhinitis.projectrhinitis.comment.repository.CommentRepository;
+import com.rhinitis.projectrhinitis.member.entity.Member;
+import com.rhinitis.projectrhinitis.member.repository.MemberRepository;
 import com.rhinitis.projectrhinitis.post.entity.Post;
 import com.rhinitis.projectrhinitis.post.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
@@ -21,33 +23,43 @@ public class CommentServiceImpl implements CommentService{
 
     private final CommentRepository commentRepository;
     private final PostRepository postRepository;
+    private final MemberRepository memberRepository;
 
     @Override
-    public CommentDto.Response addComment(Long postId,CommentDto.Post commentDto) {
+    public CommentDto.Response addComment(Long postId,CommentDto.Post postDto) {
         Post post = postRepository.findById(postId).orElseThrow();
-        Comment comment = dtoToComment(commentDto);
+        Comment comment = postDto.toEntity();
+
+        Member member = memberRepository.findByUsername(postDto.getUsername()).orElseThrow();
+        comment.setMember(member);
 
         //TODO post에 댓글 저장
-
+        comment.setPost(post);
         commentRepository.save(comment);
-        CommentDto.Response response = mapToResponse(comment);
-
-        log.info("게시글 id : {} , 게시글 명 : {}에 댓글이 달렸습니다. 댓글 내용 : {}",postId,post.getTitle(),comment.getContents());
+        CommentDto.Response response = new CommentDto.Response(comment);
+        log.info("게시글 id : {} , 게시글 명 : {}에 댓글이 달렸습니다. 댓글 내용 : {}",postId,post.getTitle(),comment.getContent());
         return response;
     }
 
     @Override
     public CommentDto.Response getComment(Long commentId) {
         Comment comment = getCommentById(commentId);
-        CommentDto.Response response = mapToResponse(comment);
+        CommentDto.Response response = new CommentDto.Response(comment);
         return response;
     }
 
     @Override
     public CommentDto.Response editComment(Long commentId, CommentDto.Patch patchDto) {
         Comment comment = getCommentById(commentId);
+
+        Member member = memberRepository.findByUsername(patchDto.getUsername()).orElseThrow();
+        if(!member.getMemberId().equals(comment.getMember().getMemberId())) {
+            throw new RuntimeException("권한없음");
+        }
+
         comment.update(patchDto);
-        CommentDto.Response response = mapToResponse(comment);
+        commentRepository.save(comment);
+        CommentDto.Response response = new CommentDto.Response(comment);
         return response;
     }
 
@@ -55,27 +67,7 @@ public class CommentServiceImpl implements CommentService{
     public void deleteComment(Long commentId) {
         Comment comment = getCommentById(commentId);
         comment.changeStatus(CommentStatus.INACTIVE);
-        log.info("댓글 id : {} , {} 이(가) 비활성화 되었습니다.",commentId,comment.getContents());
-    }
-
-    private Comment dtoToComment(CommentDto.Post commentDto){
-        Comment comment = Comment.builder()
-                .contents(commentDto.getContents())
-                .createdAt(LocalDateTime.now())
-                .commentStatus(CommentStatus.ACTIVE)
-                .build();
-        return comment;
-    }
-
-    private CommentDto.Response mapToResponse(Comment comment){
-        CommentDto.Response response = CommentDto.Response.builder()
-                .commentId(comment.getCommentId())
-                .contents(comment.getContents())
-                .createdAt(comment.getCreatedAt())
-                .modifiedAt(comment.getModifiedAt())
-                .commentStatus(comment.getCommentStatus())
-                .build();
-        return response;
+        log.info("댓글 id : {} , {} 이(가) 비활성화 되었습니다.",commentId,comment.getContent());
     }
 
     private Comment getCommentById(Long commentId){
