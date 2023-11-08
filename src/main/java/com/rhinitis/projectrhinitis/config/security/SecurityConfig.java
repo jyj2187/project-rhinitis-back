@@ -1,13 +1,14 @@
 package com.rhinitis.projectrhinitis.config.security;
 
-import com.rhinitis.projectrhinitis.util.auth.PrincipalDetailsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
@@ -17,7 +18,8 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 @Configuration
 public class SecurityConfig {
 //    private final AuthenticationProviderService authenticationProvider;
-    private final PrincipalDetailsService principalDetailsService;
+//    private final PrincipalDetailsService principalDetailsService;
+    private final CustomDsl customDsl;
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
@@ -26,18 +28,19 @@ public class SecurityConfig {
                 .headers(c -> c.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable).disable())
                 .formLogin(AbstractHttpConfigurer::disable)
                 .httpBasic(AbstractHttpConfigurer::disable)
-//                .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .userDetailsService(principalDetailsService)
+                .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+//                .userDetailsService
                 .authorizeHttpRequests(auth -> {
                     auth
-                            .requestMatchers(new AntPathRequestMatcher("/members/v1/join"),
-                                    new AntPathRequestMatcher("/members/v1/login")).permitAll()
-                            .requestMatchers(new AntPathRequestMatcher("/posts/v1/**", "GET")).permitAll()
-                            .requestMatchers(new AntPathRequestMatcher("/comments/v1/**", "GET")).permitAll()
+                            .requestMatchers(AntPathRequestMatcher.antMatcher(HttpMethod.GET, "/posts/**")).permitAll()
+                            .requestMatchers(AntPathRequestMatcher.antMatcher("/members/v1/join"),
+                                    AntPathRequestMatcher.antMatcher("/members/v1/login")).permitAll()
+                            .requestMatchers(AntPathRequestMatcher.antMatcher("/posts/v1/**")).authenticated()
+                            .requestMatchers(AntPathRequestMatcher.antMatcher("/comments/v1/**")).authenticated()
                             .anyRequest().permitAll();
 //                            .anyRequest().authenticated();
-                });
-
+                })
+                .apply(customDsl);
         return http.build();
     }
 

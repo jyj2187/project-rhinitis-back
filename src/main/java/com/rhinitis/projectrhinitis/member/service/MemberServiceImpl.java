@@ -1,13 +1,12 @@
 package com.rhinitis.projectrhinitis.member.service;
 
+import com.rhinitis.projectrhinitis.config.auth.PrincipalDetails;
 import com.rhinitis.projectrhinitis.member.dto.MemberDto;
 import com.rhinitis.projectrhinitis.member.entity.Member;
 import com.rhinitis.projectrhinitis.member.repository.MemberRepository;
-import com.rhinitis.projectrhinitis.util.auth.PrincipalDetails;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,13 +32,10 @@ public class MemberServiceImpl implements MemberService {
     }
 
     @Override
-    public MemberDto.Response loginMember(MemberDto.Login loginDto) {
-        Member existMember = verifyExistMemberByUsername(loginDto.getUsername());
-        if (!passwordEncoder.matches(loginDto.getPassword(), existMember.getPassword())) {
-            throw new RuntimeException("비밀번호가 틀리잖아!");
-        }
-        log.info("회원 \"{}\" 로그인. 회원 ID : {} ", existMember.getUsername(), existMember.getMemberId());
-        return new MemberDto.Response(existMember);
+    public MemberDto.Response loginMember(Authentication authentication) {
+        Member authenticatedMember = ((PrincipalDetails) authentication.getPrincipal()).getMember();
+        log.info("회원 \"{}\" 로그인. 회원 ID : {} ", authenticatedMember.getUsername(), authenticatedMember.getMemberId());
+        return new MemberDto.Response(authenticatedMember);
     }
 
     /**
@@ -71,7 +67,7 @@ public class MemberServiceImpl implements MemberService {
     }
 
     @Override
-    public MemberDto.Response updateMember(Long memberId, MemberDto.Patch patchDto) {
+    public MemberDto.Response updateMember(Long memberId, MemberDto.Patch patchDto, Authentication authentication) {
         log.info("회원 수정. 회원 ID : {}", memberId);
         Member existMember = verifyExistMemberById(memberId);
         existMember.updateMember(patchDto);
@@ -87,7 +83,7 @@ public class MemberServiceImpl implements MemberService {
     }
 
     @Override
-    public void deactivateMember(Long memberId) {
+    public void deactivateMember(Long memberId, Authentication authentication) {
         Member existMember = verifyExistMemberById(memberId);
         existMember.deactivate();
         memberRepository.save(existMember);

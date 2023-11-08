@@ -2,6 +2,7 @@ package com.rhinitis.projectrhinitis.post.entity;
 
 import com.rhinitis.projectrhinitis.comment.entity.Comment;
 import com.rhinitis.projectrhinitis.member.entity.Member;
+import com.rhinitis.projectrhinitis.member.entity.Role;
 import com.rhinitis.projectrhinitis.post.dto.PostDto;
 import com.rhinitis.projectrhinitis.util.audit.Auditable;
 import jakarta.persistence.*;
@@ -9,7 +10,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -51,5 +51,14 @@ public class Post extends Auditable {
 
     public void setMember(Member member) {
         this.member = member;
+    }
+
+    public void checkPermission(Member authenticatedMember) {
+        if(Role.VISITOR.equals(authenticatedMember.getMemberRole())) {
+            throw new RuntimeException("권한없음");
+        }
+        if(!this.member.getMemberId().equals(authenticatedMember.getMemberId())) {
+            throw new RuntimeException("권한없음");
+        }
     }
 }
