@@ -17,9 +17,8 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 @EnableWebSecurity
 @Configuration
 public class SecurityConfig {
-//    private final AuthenticationProviderService authenticationProvider;
-//    private final PrincipalDetailsService principalDetailsService;
     private final CustomDsl customDsl;
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
@@ -29,16 +28,15 @@ public class SecurityConfig {
                 .formLogin(AbstractHttpConfigurer::disable)
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-//                .userDetailsService
                 .authorizeHttpRequests(auth -> {
                     auth
                             .requestMatchers(AntPathRequestMatcher.antMatcher(HttpMethod.GET, "/posts/**")).permitAll()
                             .requestMatchers(AntPathRequestMatcher.antMatcher("/members/v1/join"),
                                     AntPathRequestMatcher.antMatcher("/members/v1/login")).permitAll()
-                            .requestMatchers(AntPathRequestMatcher.antMatcher("/posts/v1/**")).authenticated()
-                            .requestMatchers(AntPathRequestMatcher.antMatcher("/comments/v1/**")).authenticated()
-                            .anyRequest().permitAll();
-//                            .anyRequest().authenticated();
+//                            .requestMatchers(AntPathRequestMatcher.antMatcher("/posts/v1/**")).authenticated()
+//                            .requestMatchers(AntPathRequestMatcher.antMatcher("/comments/v1/**")).authenticated()
+//                            .anyRequest().permitAll();
+                            .anyRequest().authenticated();
                 })
                 .apply(customDsl);
         return http.build();
