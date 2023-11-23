@@ -9,8 +9,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
-
 @Getter
 @NoArgsConstructor
 @Entity
@@ -49,5 +47,11 @@ public class Comment extends Auditable {
 
     public void setPost(Post post){
         this.post = post;
+    }
+
+    public void checkPermission(Member authenticatedMember) {
+        if(!this.member.getMemberId().equals(authenticatedMember.getMemberId())) {
+            throw new RuntimeException("권한없음");
+        }
     }
 }

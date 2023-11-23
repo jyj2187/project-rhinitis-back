@@ -1,13 +1,16 @@
 package com.rhinitis.projectrhinitis.config.security;
 
-import com.rhinitis.projectrhinitis.util.auth.PrincipalDetailsService;
+import com.rhinitis.projectrhinitis.member.entity.MemberStatus;
+import com.rhinitis.projectrhinitis.member.entity.Role;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
@@ -16,8 +19,10 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 @EnableWebSecurity
 @Configuration
 public class SecurityConfig {
-//    private final AuthenticationProviderService authenticationProvider;
-    private final PrincipalDetailsService principalDetailsService;
+    private final CustomDsl customDsl;
+    private final CustomLogoutHandler customLogoutHandler;
+    private final CustomLogoutSuccessHandler customLogoutSuccessHandler;
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
@@ -26,18 +31,33 @@ public class SecurityConfig {
                 .headers(c -> c.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable).disable())
                 .formLogin(AbstractHttpConfigurer::disable)
                 .httpBasic(AbstractHttpConfigurer::disable)
-//                .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .userDetailsService(principalDetailsService)
+                .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+
+        http
+                .apply(customDsl);
+
+        http
                 .authorizeHttpRequests(auth -> {
                     auth
-                            .requestMatchers(new AntPathRequestMatcher("/members/v1/join"),
-                                    new AntPathRequestMatcher("/members/v1/login")).permitAll()
-                            .requestMatchers(new AntPathRequestMatcher("/posts/v1/**", "GET")).permitAll()
-                            .requestMatchers(new AntPathRequestMatcher("/comments/v1/**", "GET")).permitAll()
-                            .anyRequest().permitAll();
-//                            .anyRequest().authenticated();
-                });
+                        .requestMatchers(AntPathRequestMatcher.antMatcher(HttpMethod.GET, "/posts/**")).permitAll()
+                        .requestMatchers(AntPathRequestMatcher.antMatcher("/members/v1/join"),
+                                AntPathRequestMatcher.antMatcher("/members/v1/login")).permitAll()
+                        .requestMatchers(AntPathRequestMatcher.antMatcher("/members/v1/activation/send"),
+                                AntPathRequestMatcher.antMatcher("/members/v1/activation")).hasAuthority(MemberStatus.IN_REGISTER.name())
+                        .requestMatchers(AntPathRequestMatcher.antMatcher("/posts/v1/**")).hasAnyAuthority(Role.ADMIN.name(),Role.MEMBER.name(),Role.MANAGER.name())
+                        .requestMatchers(AntPathRequestMatcher.antMatcher("/comments/v1/**")).hasAnyAuthority(Role.ADMIN.name(),Role.MEMBER.name(),Role.MANAGER.name())
+//                            .anyRequest().permitAll();
+                        .anyRequest().authenticated();
+                })
+                .apply(customDsl);
 
+        http
+                .logout(logout ->
+                    logout
+                            .logoutUrl("/members/v1/logout")
+                            .addLogoutHandler(customLogoutHandler)
+                            .logoutSuccessHandler(customLogoutSuccessHandler)
+                );
         return http.build();
     }
 

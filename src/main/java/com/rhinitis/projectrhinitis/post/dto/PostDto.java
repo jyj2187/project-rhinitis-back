@@ -18,15 +18,11 @@ public class PostDto {
     public static class Save {
         private String title;
         private String content;
-        /* 테스트 용 */
-        private String username;
 
         @Builder
-        public Save(String title, String content, String username) {
+        public Save(String title, String content) {
             this.title = title;
             this.content = content;
-            /* 테스트 용 */
-            this.username = username;
         }
 
         public Post toEntity() {
@@ -43,14 +39,11 @@ public class PostDto {
     public static class Patch{
         private String title;
         private String content;
-        /* 테스트 용 */
-        private String username;
 
         @Builder
-        public Patch(String title, String content, String username) {
+        public Patch(String title, String content) {
             this.title = title;
             this.content = content;
-            this.username = username;
         }
     }
 

@@ -3,18 +3,15 @@ package com.rhinitis.projectrhinitis.post.controller;
 import com.rhinitis.projectrhinitis.dto.MultiResponseDto;
 import com.rhinitis.projectrhinitis.post.dto.PostDto;
 import com.rhinitis.projectrhinitis.post.service.PostServiceImpl;
-import com.rhinitis.projectrhinitis.util.auth.PrincipalDetails;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.*;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-
-import java.security.Principal;
 
 @Slf4j
 @RestController
@@ -25,8 +22,8 @@ public class PostController {
 
     //글 등록
     @PostMapping("/v1")
-    public ResponseEntity postPost(@RequestBody PostDto.Save saveDto){
-        PostDto.Response postResponse = postService.addPost(saveDto);
+    public ResponseEntity postPost(@RequestBody PostDto.Save saveDto, Authentication authentication){
+        PostDto.Response postResponse = postService.addPost(saveDto, authentication);
         return new ResponseEntity<>(postResponse, HttpStatus.CREATED);
     }
 
@@ -45,15 +42,15 @@ public class PostController {
 
     //글 수정
     @PatchMapping("/v1/{postId}")
-    public ResponseEntity patchPost(@PathVariable Long postId, @RequestBody PostDto.Patch patchDto){
-        PostDto.Response postResponse = postService.editPost(postId,patchDto);
+    public ResponseEntity patchPost(@PathVariable Long postId, @RequestBody PostDto.Patch patchDto, Authentication authentication){
+        PostDto.Response postResponse = postService.editPost(postId,patchDto, authentication);
         return new ResponseEntity<>(postResponse,HttpStatus.OK);
     }
 
     //글 삭제
     @DeleteMapping("/v1/{postId}")
-    public ResponseEntity deletePost(@PathVariable Long postId){
-        postService.deletePost(postId);
+    public ResponseEntity deletePost(@PathVariable Long postId, Authentication authentication){
+        postService.deletePost(postId, authentication);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }
