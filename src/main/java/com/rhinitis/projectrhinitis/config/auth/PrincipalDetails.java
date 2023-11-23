@@ -3,7 +3,6 @@ package com.rhinitis.projectrhinitis.config.auth;
 import com.rhinitis.projectrhinitis.member.entity.Member;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -24,17 +23,16 @@ public class PrincipalDetails implements UserDetails {
         log.info("getAuthorities");
         Collection<GrantedAuthority> authorities = new ArrayList<>();
         authorities.add(() -> member.getMemberRole().name());
+        authorities.add(() -> member.getMemberStatus().name());
+        for(GrantedAuthority authority : authorities) {
+            log.info(authority.getAuthority());
+        }
         return authorities;
     }
 
     public Member getMember() {
         log.info("getMember");
         return member;
-    }
-
-    public PrincipalDetails(Authentication authentication) {
-        PrincipalDetails principalDetails = (PrincipalDetails) authentication.getPrincipal();
-        this.member = principalDetails.getMember();
     }
 
     @Override

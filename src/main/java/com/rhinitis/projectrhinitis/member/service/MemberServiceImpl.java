@@ -4,22 +4,35 @@ import com.rhinitis.projectrhinitis.config.auth.PrincipalDetails;
 import com.rhinitis.projectrhinitis.member.dto.MemberDto;
 import com.rhinitis.projectrhinitis.member.entity.Member;
 import com.rhinitis.projectrhinitis.member.repository.MemberRepository;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import net.nurigo.sdk.NurigoApp;
+import net.nurigo.sdk.message.model.Message;
+import net.nurigo.sdk.message.service.DefaultMessageService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
+import java.util.Random;
 
 @Service
 @Slf4j
 @Transactional
-@RequiredArgsConstructor
+//@RequiredArgsConstructor
 public class MemberServiceImpl implements MemberService {
+    @Value("${sms.FROM}")
+    private String smsFrom;
     private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
+    private final DefaultMessageService messageService;
+
+    public MemberServiceImpl(MemberRepository memberRepository, PasswordEncoder passwordEncoder, @Value("${sms.API-KEY}") String smsApiKey, @Value("${sms.API-SECRETS}") String smsApiSecrets) {
+        this.memberRepository = memberRepository;
+        this.passwordEncoder = passwordEncoder;
+        this.messageService = NurigoApp.INSTANCE.initialize(smsApiKey, smsApiSecrets, "https://api.coolsms.co.kr");
+    }
 
     @Override
     public MemberDto.Response joinMember(MemberDto.Join joinDto) {
@@ -38,26 +51,30 @@ public class MemberServiceImpl implements MemberService {
         return new MemberDto.Response(authenticatedMember);
     }
 
-    /**
-     * <pre>회원 활성화 서비스</pre>
-     * TODO: 활성화 인증 by 이메일, 문자, 톡 등을 통해 처리
-     *
-     * @param activateDto
-     * @param memberId
-     * @return
-     */
     @Override
-    public MemberDto.Response activateMember(Long memberId, MemberDto.Activate activateDto) {
-        Member existMember = verifyExistMemberById(memberId);
-        if (!activateDto.getUsername().equals(existMember.getUsername())) {
-            throw new RuntimeException("올바르지 않은 요청입니다.");
-        }
-//        if(existMember.getMemberStatus().equals(MemberStatus.ACTIVE)) {
-//            throw new RuntimeException("이미 활성화된 회원입니다.");
-//        }
+    public void sendActivationCode(MemberDto.Activate activateDto) {
+//        Member authenticatedMember = ((PrincipalDetails) authentication.getPrincipal()).getMember();
+//        authenticatedMember.checkInRegister();
 
+        Member existMember = memberRepository.findByUsername(activateDto.getUsername()).orElseThrow();
+        existMember.checkInRegister();
+
+        Message activationCode = new Message();
+        activationCode.setFrom(smsFrom);
+        activationCode.setTo(activateDto.getPhone());
+        activationCode.setText(createActivationCode());
+//        messageService.sendOne(new SingleMessageSendingRequest(activationCode));
+    }
+
+    @Override
+    public MemberDto.Response activateMember(MemberDto.Activate activateDto) {
+//        Member authenticatedMember = ((PrincipalDetails) authentication.getPrincipal()).getMember();
+//        authenticatedMember.checkInRegister();
+        Member existMember = memberRepository.findByUsername(activateDto.getUsername()).orElseThrow();
+        existMember.checkInRegister();
+        // TODO: 인증 완료시 전화번호 저장 -> 전화번호는 Member 테이블과 별도로 관리
         // 임시용
-        String checkActivationCode = "ACTIVATE";
+        String checkActivationCode = "000000";
         if (!activateDto.getActivationCode().equals(checkActivationCode)) {
             throw new RuntimeException("활성화 코드가 올바르지 않습니다.");
         }
@@ -104,5 +121,15 @@ public class MemberServiceImpl implements MemberService {
             log.error("이미 존재하는 username입니다. username : {}", username);
             throw new RuntimeException("이미 존재하는 회원이잖아!");
         }
+    }
+
+    private String createActivationCode() {
+        Random random = new Random();
+        StringBuilder code = new StringBuilder();
+//        for (int i = 0; i < 6; i++) {
+//            code.append(random.nextInt(9));
+//        }
+        code.append("000000");
+        return code.toString();
     }
 }

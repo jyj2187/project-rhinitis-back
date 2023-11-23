@@ -3,6 +3,7 @@ package com.rhinitis.projectrhinitis.config.security;
 import com.rhinitis.projectrhinitis.config.jwt.JwtProvider;
 import com.rhinitis.projectrhinitis.config.jwt.filter.JwtAuthenticationFilter;
 import com.rhinitis.projectrhinitis.config.jwt.filter.JwtAuthorizationFilter;
+import com.rhinitis.projectrhinitis.config.redis.RedisUtils;
 import com.rhinitis.projectrhinitis.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -19,6 +20,7 @@ import org.springframework.web.filter.CorsFilter;
 public class CustomDsl extends AbstractHttpConfigurer<CustomDsl, HttpSecurity> {
     private final MemberRepository memberRepository;
     private final JwtProvider jwtProvider;
+    private final RedisUtils redisUtils;
 
     @Override
     public void configure(HttpSecurity builder) throws Exception {
@@ -26,8 +28,8 @@ public class CustomDsl extends AbstractHttpConfigurer<CustomDsl, HttpSecurity> {
 
         builder
                 .addFilter(corsFilter())
-                .addFilter(new JwtAuthenticationFilter(authenticationManager, jwtProvider))
-                .addFilter(new JwtAuthorizationFilter(authenticationManager, memberRepository, jwtProvider));
+                .addFilter(new JwtAuthenticationFilter(authenticationManager, jwtProvider, redisUtils))
+                .addFilter(new JwtAuthorizationFilter(authenticationManager, memberRepository, jwtProvider, redisUtils));
     }
     
     @Bean

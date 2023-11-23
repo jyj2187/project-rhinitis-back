@@ -9,7 +9,6 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.List;
@@ -69,11 +68,15 @@ public class MemberDto {
     @NoArgsConstructor(access = AccessLevel.PROTECTED)
     public static class Activate{
         private String username;
+        private String email;
+        private String phone;
         private String activationCode;
 
         @Builder
-        public Activate(String username, String activationCode) {
+        public Activate(String username, String email, String phone, String activationCode) {
             this.username = username;
+            this.email = email;
+            this.phone = phone;
             this.activationCode = activationCode;
         }
     }

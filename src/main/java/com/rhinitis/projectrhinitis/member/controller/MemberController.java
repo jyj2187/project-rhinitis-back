@@ -1,7 +1,10 @@
 package com.rhinitis.projectrhinitis.member.controller;
 
+import com.rhinitis.projectrhinitis.config.auth.PrincipalDetails;
 import com.rhinitis.projectrhinitis.member.dto.MemberDto;
 import com.rhinitis.projectrhinitis.member.service.MemberService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -58,11 +61,31 @@ public class MemberController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    // 인증코드 요청
+    @PostMapping("/activation/send")
+//    @PostMapping("/{memberId}/activation/send")
+    public ResponseEntity getActivationCode(@RequestBody MemberDto.Activate activateDto) {
+        memberService.sendActivationCode(activateDto);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
     // 멤버 활성화
-    @PostMapping("/{memberId}/activate")
-    public ResponseEntity activateMember(@PathVariable Long memberId, @RequestBody MemberDto.Activate activateDto) {
-        MemberDto.Response response = memberService.activateMember(memberId, activateDto);
+    @PostMapping("/activation")
+//    @PostMapping("/{memberId}/activation/")
+    public ResponseEntity verifyActivationCode(@RequestBody MemberDto.Activate activateDto) {
+        MemberDto.Response response = memberService.activateMember(activateDto);
         return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @GetMapping("/logout")
+    public ResponseEntity logoutMember(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
+        // TODO: request를 받아서 토큰을 검증하여, 로그인 정보를 업데이트할 수 있지 않을까? 논의 필요.
+        PrincipalDetails principalDetails = (PrincipalDetails) authentication.getPrincipal();
+//        redisUtils.deleteRefreshToken(principalDetails.getMember().getMemberId());
+        log.info("logout 컨트롤러 도달");
+        HttpStatus httpStatus = HttpStatus.resolve(response.getStatus());
+        log.info("httpStatus : {}", httpStatus);
+        return new ResponseEntity<>(httpStatus != null ? httpStatus : HttpStatus.OK);
     }
 
     // 멤버 정보 조회

@@ -23,14 +23,27 @@ repositories {
 
 dependencies {
 //    implementation 'mysql:mysql-connector-java'
+    // spring boot 라이브러리
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+    
+    // jwt 라이브러리
     implementation 'com.auth0:java-jwt:4.0.0'
+    
+    // sms 발송 coolsms sdk
+    implementation 'net.nurigo:sdk:4.3.0'
+    
+    // lombok
     compileOnly 'org.projectlombok:lombok'
     runtimeOnly 'com.h2database:h2'
-    runtimeOnly 'com.mysql:mysql-connector-j'
     annotationProcessor 'org.projectlombok:lombok'
+    
+    // mysql connector for spring boot 3.0+
+    runtimeOnly 'com.mysql:mysql-connector-j'
+    
+    // test 의존성
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'
 }
