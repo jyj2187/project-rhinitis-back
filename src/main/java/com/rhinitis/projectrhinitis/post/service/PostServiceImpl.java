@@ -8,6 +8,8 @@ import com.rhinitis.projectrhinitis.post.dto.PostDto;
 import com.rhinitis.projectrhinitis.post.entity.Post;
 import com.rhinitis.projectrhinitis.post.entity.PostStatus;
 import com.rhinitis.projectrhinitis.post.repository.PostRepository;
+import com.rhinitis.projectrhinitis.util.exception.BusinessLogicException;
+import com.rhinitis.projectrhinitis.util.exception.ExceptionCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.*;
@@ -33,7 +35,7 @@ public class PostServiceImpl implements PostService{
         Post post = saveDto.toEntity();
         Member member = memberRepository.findByUsername(saveDto.getUsername()).orElseThrow();
         if (member.getMemberRole().equals(Role.VISITOR)) {
-            throw new RuntimeException("권한없음");
+            throw new BusinessLogicException(ExceptionCode.NO_POST_AUTHORIZATION);
         }
         post.setMember(member);
         postRepository.save(post);
@@ -62,9 +64,9 @@ public class PostServiceImpl implements PostService{
     public PostDto.Response editPost(Long postId, PostDto.Patch patchDto) {
         Post post = getPostById(postId);
 
-        Member member = memberRepository.findByUsername(patchDto.getUsername()).orElseThrow();
+        Member member = memberRepository.findByUsername(patchDto.getUsername()).orElseThrow(()->new BusinessLogicException(ExceptionCode.NO_MEMBER_EXIST));
         if (!member.getMemberId().equals(post.getMember().getMemberId())) {
-            throw new RuntimeException("이건 니가 쓴 글이 아냐!");
+            throw new BusinessLogicException(ExceptionCode.NO_EDIT_AUTHORIZATION);
         }
 
         post.update(patchDto);

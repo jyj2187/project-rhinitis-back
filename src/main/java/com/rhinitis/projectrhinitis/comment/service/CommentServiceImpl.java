@@ -8,6 +8,8 @@ import com.rhinitis.projectrhinitis.member.entity.Member;
 import com.rhinitis.projectrhinitis.member.repository.MemberRepository;
 import com.rhinitis.projectrhinitis.post.entity.Post;
 import com.rhinitis.projectrhinitis.post.repository.PostRepository;
+import com.rhinitis.projectrhinitis.util.exception.BusinessLogicException;
+import com.rhinitis.projectrhinitis.util.exception.ExceptionCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -54,7 +56,7 @@ public class CommentServiceImpl implements CommentService{
 
         Member member = memberRepository.findByUsername(patchDto.getUsername()).orElseThrow();
         if(!member.getMemberId().equals(comment.getMember().getMemberId())) {
-            throw new RuntimeException("권한없음");
+            throw new BusinessLogicException(ExceptionCode.NO_EDIT_AUTHORIZATION);
         }
 
         comment.update(patchDto);
