@@ -1,5 +1,6 @@
 package com.rhinitis.projectrhinitis.post.service;
 
+import com.rhinitis.projectrhinitis.config.auth.PrincipalDetails;
 import com.rhinitis.projectrhinitis.dto.MultiResponseDto;
 import com.rhinitis.projectrhinitis.member.entity.Member;
 import com.rhinitis.projectrhinitis.member.entity.Role;
@@ -12,11 +13,13 @@ import com.rhinitis.projectrhinitis.util.exception.BusinessLogicException;
 import com.rhinitis.projectrhinitis.util.exception.ExceptionCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -31,13 +34,15 @@ public class PostServiceImpl implements PostService{
     private final MemberRepository memberRepository;
 
     @Override
-    public PostDto.Response addPost(PostDto.Save saveDto) {
+    public PostDto.Response addPost(PostDto.Save saveDto, Authentication authentication) {
         Post post = saveDto.toEntity();
-        Member member = memberRepository.findByUsername(saveDto.getUsername()).orElseThrow();
-        if (member.getMemberRole().equals(Role.VISITOR)) {
-            throw new BusinessLogicException(ExceptionCode.NO_POST_AUTHORIZATION);
+//        Member authenticatedMember = new PrincipalDetails(authentication).getMember();
+        Member authenticatedMember = ((PrincipalDetails) authentication.getPrincipal()).getMember();
+        if (authenticatedMember.getMemberRole().equals(Role.VISITOR)) {
+            throw new RuntimeException("권한없음");
         }
-        post.setMember(member);
+
+        post.setMember(authenticatedMember);
         postRepository.save(post);
         PostDto.Response response = new PostDto.Response(post);
         log.info("게시글 \"{}\" 이(가) 등록되었습니다. 게시글 ID : {}",post.getTitle(),post.getPostId());
@@ -61,14 +66,14 @@ public class PostServiceImpl implements PostService{
     }
 
     @Override
-    public PostDto.Response editPost(Long postId, PostDto.Patch patchDto) {
+    public PostDto.Response editPost(Long postId, PostDto.Patch patchDto, Authentication authentication) {
         Post post = getPostById(postId);
 
-        Member member = memberRepository.findByUsername(patchDto.getUsername()).orElseThrow(()->new BusinessLogicException(ExceptionCode.NO_MEMBER_EXIST));
-        if (!member.getMemberId().equals(post.getMember().getMemberId())) {
-            throw new BusinessLogicException(ExceptionCode.NO_EDIT_AUTHORIZATION);
+        Member authenticatedMember = ((PrincipalDetails) authentication.getPrincipal()).getMember();
+        if (!authenticatedMember.getMemberId().equals(post.getMember().getMemberId())) {
+            throw new RuntimeException("이건 니가 쓴 글이 아냐!");
         }
-
+        post.checkPermission(authenticatedMember);
         post.update(patchDto);
         postRepository.save(post);
         PostDto.Response response = new PostDto.Response(post);
@@ -76,8 +81,13 @@ public class PostServiceImpl implements PostService{
     }
 
     @Override
-    public void deletePost(Long postId) {
+    public void deletePost(Long postId, Authentication authentication) {
         Post post = getPostById(postId);
+        Member authenticatedMember = ((PrincipalDetails) authentication.getPrincipal()).getMember();
+//        if (!authenticatedMember.getMemberId().equals(post.getMember().getMemberId())) {
+//            throw new RuntimeException("이건 니가 쓴 글이 아냐!");
+//        }
+        post.checkPermission(authenticatedMember);
         post.changeStatus(PostStatus.INACTIVE);
         postRepository.save(post);
         log.info("게시글 \"{}\" 이(가) 비활성화 되었습니다. 게시글 ID : {}",post.getTitle(),postId);

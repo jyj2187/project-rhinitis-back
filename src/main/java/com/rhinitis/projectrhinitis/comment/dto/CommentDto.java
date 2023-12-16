@@ -15,13 +15,10 @@ public class CommentDto {
     @NoArgsConstructor
     public static class Post{
         private String content;
-        /* 테스트 용 */
-        private String username;
 
         @Builder
-        public Post(String content, String username) {
+        public Post(String content) {
             this.content = content;
-            this.username = username;
         }
 
         public Comment toEntity() {
@@ -36,13 +33,10 @@ public class CommentDto {
     @NoArgsConstructor
     public static class Patch{
         private String content;
-        /* 테스트 용 */
-        private String username;
 
         @Builder
-        public Patch(String content, String username) {
+        public Patch(String content) {
             this.content = content;
-            this.username = username;
         }
     }
 

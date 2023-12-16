@@ -1,4 +1,4 @@
-package com.rhinitis.projectrhinitis.util.auth;
+package com.rhinitis.projectrhinitis.config.auth;
 
 import com.rhinitis.projectrhinitis.member.entity.Member;
 import com.rhinitis.projectrhinitis.member.repository.MemberRepository;

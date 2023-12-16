@@ -25,6 +25,7 @@ public class Member extends Auditable {
     private String displayName;
     private String password;
     private String email;
+//    private Phone phone;
     private String aboutMe;
     @Enumerated(EnumType.STRING)
     private Role memberRole;
@@ -42,6 +43,7 @@ public class Member extends Auditable {
         this.displayName = displayName;
         this.password = password;
         this.email = email;
+//        this.phone = phone;
         this.aboutMe = aboutMe;
         this.memberRole = memberRole;
         this.memberStatus = memberStatus;
@@ -63,5 +65,20 @@ public class Member extends Auditable {
 
     public void deactivate() {
         this.memberStatus = MemberStatus.INACTIVE;
+    }
+
+    public void checkInRegister() {
+        if (this.memberStatus.equals(MemberStatus.ACTIVE)) {
+            throw new RuntimeException("이미 활성화된 회원입니다.");
+        }
+        if (!this.memberStatus.equals(MemberStatus.IN_REGISTER)) {
+            throw new RuntimeException("회원가입 중인 회원이 아닙니다.");
+        }
+    }
+
+    public void checkActive() {
+        if (!this.memberStatus.equals(MemberStatus.ACTIVE)) {
+            throw new RuntimeException("권한없음");
+        }
     }
 }

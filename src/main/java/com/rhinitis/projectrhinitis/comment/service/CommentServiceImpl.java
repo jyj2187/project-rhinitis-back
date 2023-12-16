@@ -4,6 +4,7 @@ import com.rhinitis.projectrhinitis.comment.dto.CommentDto;
 import com.rhinitis.projectrhinitis.comment.entity.Comment;
 import com.rhinitis.projectrhinitis.comment.entity.CommentStatus;
 import com.rhinitis.projectrhinitis.comment.repository.CommentRepository;
+import com.rhinitis.projectrhinitis.config.auth.PrincipalDetails;
 import com.rhinitis.projectrhinitis.member.entity.Member;
 import com.rhinitis.projectrhinitis.member.repository.MemberRepository;
 import com.rhinitis.projectrhinitis.post.entity.Post;
@@ -12,10 +13,9 @@ import com.rhinitis.projectrhinitis.util.exception.BusinessLogicException;
 import com.rhinitis.projectrhinitis.util.exception.ExceptionCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDateTime;
 
 @Slf4j
 @Service
@@ -28,14 +28,12 @@ public class CommentServiceImpl implements CommentService{
     private final MemberRepository memberRepository;
 
     @Override
-    public CommentDto.Response addComment(Long postId,CommentDto.Post postDto) {
+    public CommentDto.Response addComment(Long postId,CommentDto.Post postDto, Authentication authentication) {
         Post post = postRepository.findById(postId).orElseThrow();
         Comment comment = postDto.toEntity();
+        Member authenticatedMember = ((PrincipalDetails) authentication.getPrincipal()).getMember();
 
-        Member member = memberRepository.findByUsername(postDto.getUsername()).orElseThrow();
-        comment.setMember(member);
-
-        //TODO post에 댓글 저장
+        comment.setMember(authenticatedMember);
         comment.setPost(post);
         commentRepository.save(comment);
         CommentDto.Response response = new CommentDto.Response(comment);
@@ -51,14 +49,11 @@ public class CommentServiceImpl implements CommentService{
     }
 
     @Override
-    public CommentDto.Response editComment(Long commentId, CommentDto.Patch patchDto) {
+    public CommentDto.Response editComment(Long commentId, CommentDto.Patch patchDto, Authentication authentication) {
         Comment comment = getCommentById(commentId);
+        Member authenticatedMember = ((PrincipalDetails) authentication.getPrincipal()).getMember();
 
-        Member member = memberRepository.findByUsername(patchDto.getUsername()).orElseThrow();
-        if(!member.getMemberId().equals(comment.getMember().getMemberId())) {
-            throw new BusinessLogicException(ExceptionCode.NO_EDIT_AUTHORIZATION);
-        }
-
+        comment.checkPermission(authenticatedMember);
         comment.update(patchDto);
         commentRepository.save(comment);
         CommentDto.Response response = new CommentDto.Response(comment);
@@ -66,9 +61,12 @@ public class CommentServiceImpl implements CommentService{
     }
 
     @Override
-    public void deleteComment(Long commentId) {
+    public void deleteComment(Long commentId, Authentication authentication) {
         Comment comment = getCommentById(commentId);
+        Member authenticatedMember = ((PrincipalDetails) authentication.getPrincipal()).getMember();
+        comment.checkPermission(authenticatedMember);
         comment.changeStatus(CommentStatus.INACTIVE);
+        commentRepository.save(comment);
         log.info("댓글 id : {} , {} 이(가) 비활성화 되었습니다.",commentId,comment.getContent());
     }
 
