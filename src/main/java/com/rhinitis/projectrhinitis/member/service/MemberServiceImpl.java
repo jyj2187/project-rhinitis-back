@@ -76,7 +76,7 @@ public class MemberServiceImpl implements MemberService {
         // 임시용
         String checkActivationCode = "000000";
         if (!activateDto.getActivationCode().equals(checkActivationCode)) {
-            throw new RuntimeException("활성화 코드가 올바르지 않습니다.");
+            throw new BusinessLogicException(ExceptionCode.WRONG_ACTIVE_CODE);
         }
         existMember.activate();
         memberRepository.save(existMember);
@@ -108,18 +108,18 @@ public class MemberServiceImpl implements MemberService {
     }
 
     private Member verifyExistMemberById(Long memberId) {
-        return memberRepository.findById(memberId).orElseThrow(() -> new RuntimeException("이딴 회원은 존재하지 않습니다."));
+        return memberRepository.findById(memberId).orElseThrow(() -> new BusinessLogicException(ExceptionCode.NO_MEMBER_EXIST));
     }
 
     private Member verifyExistMemberByUsername(String username) {
-        return memberRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("이딴 회원은 존재하지 않습니다."));
+        return memberRepository.findByUsername(username).orElseThrow(() -> new BusinessLogicException(ExceptionCode.NO_MEMBER_EXIST));
     }
 
     private void verifyExistUsername(String username) {
         Optional<Member> checkMember = memberRepository.findByUsername(username);
         if (checkMember.isPresent()) {
             log.error("이미 존재하는 username입니다. username : {}", username);
-            throw new RuntimeException("이미 존재하는 회원이잖아!");
+            throw new BusinessLogicException(ExceptionCode.EXISTING_USERNAME);
         }
     }
 
