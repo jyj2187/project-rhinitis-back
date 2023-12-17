@@ -9,8 +9,6 @@ import com.rhinitis.projectrhinitis.post.dto.PostDto;
 import com.rhinitis.projectrhinitis.post.entity.Post;
 import com.rhinitis.projectrhinitis.post.entity.PostStatus;
 import com.rhinitis.projectrhinitis.post.repository.PostRepository;
-import com.rhinitis.projectrhinitis.util.exception.BusinessLogicException;
-import com.rhinitis.projectrhinitis.util.exception.ExceptionCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
