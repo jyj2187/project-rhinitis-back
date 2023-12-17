@@ -5,6 +5,8 @@ import com.rhinitis.projectrhinitis.comment.entity.Comment;
 import com.rhinitis.projectrhinitis.member.dto.MemberDto;
 import com.rhinitis.projectrhinitis.post.entity.Post;
 import com.rhinitis.projectrhinitis.util.audit.Auditable;
+import com.rhinitis.projectrhinitis.util.exception.BusinessLogicException;
+import com.rhinitis.projectrhinitis.util.exception.ExceptionCode;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -69,16 +71,17 @@ public class Member extends Auditable {
 
     public void checkInRegister() {
         if (this.memberStatus.equals(MemberStatus.ACTIVE)) {
-            throw new RuntimeException("이미 활성화된 회원입니다.");
+            throw new BusinessLogicException(ExceptionCode.ALREADY_ACTIVATED);
         }
         if (!this.memberStatus.equals(MemberStatus.IN_REGISTER)) {
-            throw new RuntimeException("회원가입 중인 회원이 아닙니다.");
+            // TODO: 세분화할 필요성.
+            throw new BusinessLogicException(ExceptionCode.PERMISSION_DENIED);
         }
     }
 
     public void checkActive() {
         if (!this.memberStatus.equals(MemberStatus.ACTIVE)) {
-            throw new RuntimeException("권한없음");
+            throw new BusinessLogicException(ExceptionCode.PERMISSION_DENIED);
         }
     }
 }

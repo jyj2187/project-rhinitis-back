@@ -9,6 +9,8 @@ import com.rhinitis.projectrhinitis.post.dto.PostDto;
 import com.rhinitis.projectrhinitis.post.entity.Post;
 import com.rhinitis.projectrhinitis.post.entity.PostStatus;
 import com.rhinitis.projectrhinitis.post.repository.PostRepository;
+import com.rhinitis.projectrhinitis.util.exception.BusinessLogicException;
+import com.rhinitis.projectrhinitis.util.exception.ExceptionCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -37,9 +39,8 @@ public class PostServiceImpl implements PostService{
 //        Member authenticatedMember = new PrincipalDetails(authentication).getMember();
         Member authenticatedMember = ((PrincipalDetails) authentication.getPrincipal()).getMember();
         if (authenticatedMember.getMemberRole().equals(Role.VISITOR)) {
-            throw new RuntimeException("권한없음");
+            throw new BusinessLogicException(ExceptionCode.PERMISSION_DENIED);
         }
-
         post.setMember(authenticatedMember);
         postRepository.save(post);
         PostDto.Response response = new PostDto.Response(post);
@@ -69,7 +70,7 @@ public class PostServiceImpl implements PostService{
 
         Member authenticatedMember = ((PrincipalDetails) authentication.getPrincipal()).getMember();
         if (!authenticatedMember.getMemberId().equals(post.getMember().getMemberId())) {
-            throw new RuntimeException("이건 니가 쓴 글이 아냐!");
+            throw new BusinessLogicException(ExceptionCode.NO_EDIT_PERMISSION);
         }
         post.checkPermission(authenticatedMember);
         post.update(patchDto);
@@ -93,7 +94,7 @@ public class PostServiceImpl implements PostService{
 
     private Post getPostById(Long postId){
         Post post = postRepository.findById(postId)
-                .orElseThrow();
+                .orElseThrow(() -> new BusinessLogicException(ExceptionCode.POST_NOT_EXIST));
         return post;
     }
 }

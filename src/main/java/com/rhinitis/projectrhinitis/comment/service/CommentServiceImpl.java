@@ -71,8 +71,7 @@ public class CommentServiceImpl implements CommentService{
     }
 
     private Comment getCommentById(Long commentId){
-        //TODO 모든 ElseThrow에 구체적인 오류 추가
-        Comment comment = commentRepository.findById(commentId).orElseThrow();
+        Comment comment = commentRepository.findById(commentId).orElseThrow(() -> new BusinessLogicException(ExceptionCode.COMMENT_NOT_EXIST));
         return comment;
     }
 }
