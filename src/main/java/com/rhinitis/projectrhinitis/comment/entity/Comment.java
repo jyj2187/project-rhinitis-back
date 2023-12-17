@@ -4,6 +4,8 @@ import com.rhinitis.projectrhinitis.comment.dto.CommentDto;
 import com.rhinitis.projectrhinitis.member.entity.Member;
 import com.rhinitis.projectrhinitis.post.entity.Post;
 import com.rhinitis.projectrhinitis.util.audit.Auditable;
+import com.rhinitis.projectrhinitis.util.exception.BusinessLogicException;
+import com.rhinitis.projectrhinitis.util.exception.ExceptionCode;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
@@ -51,7 +53,7 @@ public class Comment extends Auditable {
 
     public void checkPermission(Member authenticatedMember) {
         if(!this.member.getMemberId().equals(authenticatedMember.getMemberId())) {
-            throw new RuntimeException("권한없음");
+            throw new BusinessLogicException(ExceptionCode.PERMISSION_DENIED);
         }
     }
 }

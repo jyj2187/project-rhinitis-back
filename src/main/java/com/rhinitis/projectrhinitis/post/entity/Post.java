@@ -5,6 +5,8 @@ import com.rhinitis.projectrhinitis.member.entity.Member;
 import com.rhinitis.projectrhinitis.member.entity.Role;
 import com.rhinitis.projectrhinitis.post.dto.PostDto;
 import com.rhinitis.projectrhinitis.util.audit.Auditable;
+import com.rhinitis.projectrhinitis.util.exception.BusinessLogicException;
+import com.rhinitis.projectrhinitis.util.exception.ExceptionCode;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
@@ -55,10 +57,10 @@ public class Post extends Auditable {
 
     public void checkPermission(Member authenticatedMember) {
         if(Role.VISITOR.equals(authenticatedMember.getMemberRole())) {
-            throw new RuntimeException("권한없음");
+            throw new BusinessLogicException(ExceptionCode.PERMISSION_DENIED);
         }
         if(!this.member.getMemberId().equals(authenticatedMember.getMemberId())) {
-            throw new RuntimeException("권한없음");
+            throw new BusinessLogicException(ExceptionCode.PERMISSION_DENIED);
         }
     }
 }
