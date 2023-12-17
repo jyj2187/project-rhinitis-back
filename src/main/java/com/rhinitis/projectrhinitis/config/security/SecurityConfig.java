@@ -48,8 +48,7 @@ public class SecurityConfig {
                         .requestMatchers(AntPathRequestMatcher.antMatcher("/comments/v1/**")).hasAnyAuthority(Role.ADMIN.name(),Role.MEMBER.name(),Role.MANAGER.name())
 //                            .anyRequest().permitAll();
                         .anyRequest().authenticated();
-                })
-                .apply(customDsl);
+                });
 
         http
                 .logout(logout ->
